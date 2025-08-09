@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SSS Admin</title>
+  <style>
+    body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:0;padding:16px;background:#f8fafc;color:#0f172a}
+    h1{margin:0 0 12px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px}
+    table{width:100%;border-collapse:collapse}
+    th,td{border-bottom:1px solid #e5e7eb;padding:6px 8px;text-align:left;font-size:14px}
+    th{background:#f1f5f9}
+    .toolbar{display:flex;gap:8px;margin:8px 0}
+    input{padding:8px 10px;border:1px solid #e5e7eb;border-radius:8px}
+    button{background:#F58220;color:#fff;border:0;border-radius:8px;padding:8px 12px;font-weight:700;cursor:pointer}
+  </style>
+</head>
+<body>
+  <h1>SSS Admin</h1>
+  <div class="toolbar">
+    <input id="base" placeholder="API base e.g. http://localhost:4000" style="width:320px" />
+    <button onclick="loadData()">Connect</button>
+  </div>
+  <div class="grid">
+    <div class="card">
+      <h3>Users</h3>
+      <table id="users"><thead><tr><th>UID</th><th>Name</th><th>Phone</th><th>PACS</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="card">
+      <h3>Requests</h3>
+      <table id="reqs"><thead><tr><th>ID</th><th>Type</th><th>User</th><th>Item</th><th>Qty</th><th>Status</th></tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+  <script>
+    async function loadData(){
+      const base = document.getElementById('base').value || 'http://localhost:4000';
+      const U = await fetch(base + '/admin/users').then(r=>r.json());
+      const R = await fetch(base + '/admin/requests').then(r=>r.json());
+      const utb = document.querySelector('#users tbody'); utb.innerHTML='';
+      U.forEach(u=>{ utb.insertAdjacentHTML('beforeend', `<tr><td>${u.uid||''}</td><td>${u.name||''}</td><td>${u.phone||''}</td><td>${u.pacsId||''}</td></tr>`); });
+      const rtb = document.querySelector('#reqs tbody'); rtb.innerHTML='';
+      R.forEach(x=>{ rtb.insertAdjacentHTML('beforeend', `<tr><td>${x.id}</td><td>${x.type}</td><td>${x.userId}</td><td>${x.item||''}</td><td>${x.qty||''}</td><td>${x.status}</td></tr>`); });
+    }
+  </script>
+</body>
+</html>
