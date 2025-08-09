@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Brand } from '@/constants/Colors';
+import { Typography, Spacing } from '@/constants/Theme';
 
 const ITEMS = [
   { key: 'urea', label: 'यूरिया' },
@@ -55,22 +56,22 @@ export default function FertilizerScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12, backgroundColor: '#fff' },
-  title: { fontSize: 20, fontWeight: '800' },
-  section: { fontWeight: '700', marginTop: 8 },
+  container: { padding: Spacing.screenPadding, gap: 12, backgroundColor: '#fff' },
+  title: { fontSize: Typography.section, fontWeight: '800' },
+  section: { fontWeight: '800', marginTop: Spacing.sectionTop, fontSize: Typography.section - 2 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   checkbox: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 12 },
   checkboxActive: { borderColor: Brand.saffron, backgroundColor: '#FFF4E8' },
-  checkboxLabel: { fontSize: 13, color: '#111' },
+  checkboxLabel: { fontSize: Typography.label - 2, color: '#111' },
   checkboxLabelActive: { color: Brand.saffron, fontWeight: '700' },
   qtyRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
   stepBtn: { width: 36, height: 36, borderRadius: 8, borderWidth: 1, borderColor: '#e5e7eb', alignItems: 'center', justifyContent: 'center' },
   stepText: { fontSize: 18, fontWeight: '700' },
-  qtyText: { minWidth: 32, textAlign: 'center', fontSize: 16 },
+  qtyText: { minWidth: 32, textAlign: 'center', fontSize: Typography.input },
   unit: { marginLeft: 8, color: '#6b7280' },
-  total: { marginTop: 8, fontSize: 16 },
-  primary: { backgroundColor: Brand.saffron, paddingVertical: 14, borderRadius: 10, marginTop: 16 },
-  primaryText: { color: '#fff', textAlign: 'center', fontWeight: '800' },
-  secondary: { borderWidth: 1, borderColor: Brand.saffron, paddingVertical: 12, borderRadius: 10, marginTop: 10 },
-  secondaryText: { color: Brand.saffron, textAlign: 'center', fontWeight: '800' },
+  total: { marginTop: 8, fontSize: Typography.input },
+  primary: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
+  primaryText: { color: '#fff', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
+  secondary: { borderWidth: 1, borderColor: Brand.saffron, paddingVertical: 14, borderRadius: 12, marginTop: 10 },
+  secondaryText: { color: Brand.saffron, textAlign: 'center', fontWeight: '800', fontSize: Typography.button - 1 },
 });

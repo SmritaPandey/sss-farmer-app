@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import { router } from 'expo-router';
 import { Brand } from '@/constants/Colors';
+import { Typography, Spacing } from '@/constants/Theme';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FirebaseRecaptchaVerifierModal } from 'expo-firebase-recaptcha';
 import { auth } from '@/src/config/firebase';
@@ -147,16 +148,16 @@ export default function OtpScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, gap: 16, justifyContent: 'center', backgroundColor: '#fff' },
   logo: { width: 72, height: 72, alignSelf: 'center', marginBottom: 8 },
-  title: { fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  field: { gap: 6 },
-  label: { fontSize: 14 },
-  input: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, padding: 12, fontSize: 16, backgroundColor: '#fff' },
+  title: { fontSize: Typography.title, fontWeight: '800', textAlign: 'center' },
+  field: { gap: Spacing.fieldGap },
+  label: { fontSize: Typography.label },
+  input: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 14, fontSize: Typography.input, backgroundColor: '#fff' },
   subtle: { textAlign: 'center', color: '#6b7280' },
   timer: { textAlign: 'center', color: Brand.saffron, fontWeight: '700' },
   row: { flexDirection: 'row', justifyContent: 'center', gap: 10, marginVertical: 8 },
-  box: { width: 44, height: 52, borderRadius: 10, borderWidth: 1, borderColor: '#e5e7eb', textAlign: 'center', fontSize: 20 },
+  box: { width: 48, height: 56, borderRadius: 12, borderWidth: 1, borderColor: '#e5e7eb', textAlign: 'center', fontSize: 22 },
   link: { color: Brand.saffron, textAlign: 'center', marginTop: 8 },
-  cta: { backgroundColor: Brand.saffron, paddingVertical: 14, borderRadius: 10, marginTop: 16 },
+  cta: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
   ctaDisabled: { backgroundColor: '#ffcd9f' },
-  ctaText: { color: 'white', textAlign: 'center', fontWeight: '700', fontSize: 16 },
+  ctaText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });

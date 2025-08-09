@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { Brand } from '@/constants/Colors';
+import { Typography, Spacing } from '@/constants/Theme';
 import { router } from 'expo-router';
 
 type Option = { label: string; onPress?: () => void };
@@ -15,7 +16,7 @@ const OPTIONS: Option[] = [
 export default function PacsServicesScreen() {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>पैक्स सेवाओं का चयन करें</Text>
+  <Text style={styles.title}>पैक्स सेवाओं का चयन करें</Text>
       <View style={styles.grid}>
         {OPTIONS.map((opt) => (
           <Pressable key={opt.label} style={styles.card} onPress={opt.onPress}>
@@ -28,9 +29,9 @@ export default function PacsServicesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff', padding: 16 },
-  title: { fontWeight: '800', fontSize: 18, marginBottom: 12 },
+  container: { flex: 1, backgroundColor: '#fff', padding: Spacing.screenPadding },
+  title: { fontWeight: '800', fontSize: Typography.section, marginBottom: 12 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12 },
-  card: { flexBasis: '47%', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 14, backgroundColor: '#fff' },
-  cardText: { color: Brand.green, fontWeight: '700' },
+  card: { flexBasis: '47%', borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 16, backgroundColor: '#fff' },
+  cardText: { color: Brand.green, fontWeight: '800', fontSize: Typography.cardTitle },
 });

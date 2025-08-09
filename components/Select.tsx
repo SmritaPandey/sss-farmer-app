@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, Modal, FlatList, StyleSheet } from 'react-native';
 import { Brand } from '@/constants/Colors';
+import { Typography } from '@/constants/Theme';
 
 export type Option<T = string> = { label: string; value: T };
 
@@ -52,15 +53,15 @@ export function Select<T=string>({ label, value, options, onChange, placeholder,
 }
 
 const styles = StyleSheet.create({
-  label: { fontSize: 14 },
-  select: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, padding: 12, backgroundColor: '#fff' },
+  label: { fontSize: Typography.label },
+  select: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 14, backgroundColor: '#fff' },
   selectError: { borderColor: '#ef4444' },
-  valueText: { fontSize: 16 },
+  valueText: { fontSize: Typography.input },
   placeholder: { color: '#9CA3AF' },
   helper: { fontSize: 12, color: '#6b7280' },
   error: { fontSize: 12, color: '#ef4444' },
   backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.2)' },
   sheet: { position: 'absolute', left: 12, right: 12, bottom: 24, maxHeight: '55%', backgroundColor: '#fff', borderRadius: 12, paddingVertical: 8, borderWidth: 1, borderColor: '#e5e7eb' },
-  option: { paddingHorizontal: 16, paddingVertical: 14 },
-  optionText: { fontSize: 16, color: Brand.green },
+  option: { paddingHorizontal: 18, paddingVertical: 16 },
+  optionText: { fontSize: Typography.input, color: Brand.green },
 });

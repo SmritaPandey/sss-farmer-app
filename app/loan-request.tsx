@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Brand } from '@/constants/Colors';
+import { Typography, Spacing } from '@/constants/Theme';
 import { Select } from '@/components/Select';
 import { getLoanCrops, getTenures, getPacsList, getCommittees } from '@/constants/mockData';
 import { useI18n } from '@/contexts/i18n';
@@ -42,12 +43,12 @@ export default function LoanRequestScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { backgroundColor: '#fff', padding: 16, gap: 12 },
-  title: { fontWeight: '800', fontSize: 18 },
-  field: { gap: 6, marginTop: 8 },
-  label: { fontSize: 14 },
-  input: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, padding: 12, fontSize: 16 },
-  readonly: { padding: 12, backgroundColor: '#f3f4f6', borderRadius: 10 },
-  primary: { backgroundColor: Brand.saffron, paddingVertical: 14, borderRadius: 10, marginTop: 16 },
-  primaryText: { color: '#fff', textAlign: 'center', fontWeight: '800' },
+  container: { backgroundColor: '#fff', padding: Spacing.screenPadding, gap: 12 },
+  title: { fontWeight: '800', fontSize: Typography.section },
+  field: { gap: Spacing.fieldGap, marginTop: 8 },
+  label: { fontSize: Typography.label },
+  input: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 14, fontSize: Typography.input },
+  readonly: { padding: 14, backgroundColor: '#f3f4f6', borderRadius: 12, fontSize: Typography.input },
+  primary: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
+  primaryText: { color: '#fff', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });

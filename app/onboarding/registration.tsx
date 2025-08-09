@@ -3,6 +3,7 @@ import { View, Text, TextInput, Pressable, StyleSheet, ScrollView, Image } from 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { Brand } from '@/constants/Colors';
+import { Typography, Spacing } from '@/constants/Theme';
 import { Select } from '@/components/Select';
 import { getDistricts, getBlocks, getCommittees, getPacsList, getFarmerTypes, getCropSeasons } from '@/constants/mockData';
 import { useI18n } from '@/contexts/i18n';
@@ -215,22 +216,22 @@ export default function RegistrationScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { padding: 16, gap: 12, backgroundColor: '#fff' },
+  container: { padding: Spacing.screenPadding, gap: 12, backgroundColor: '#fff' },
   logo: { width: 72, height: 72, alignSelf: 'center', marginBottom: 8 },
-  title: { fontSize: 22, fontWeight: '800', textAlign: 'center' },
-  subtitle: { fontSize: 13, color: '#637488', textAlign: 'center', marginBottom: 8 },
-  section: { fontSize: 16, fontWeight: '600', marginTop: 8 },
+  title: { fontSize: Typography.title, fontWeight: '800', textAlign: 'center' },
+  subtitle: { fontSize: Typography.subtitle, color: '#637488', textAlign: 'center', marginBottom: 8 },
+  section: { fontSize: Typography.section, fontWeight: '800', marginTop: Spacing.sectionTop },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   row2: { flexDirection: 'row', gap: 8 },
   col: { flex: 1 },
-  field: { gap: 6, marginTop: 8 },
-  label: { fontSize: 14 },
-  input: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, padding: 12, fontSize: 16, backgroundColor: '#fff' },
+  field: { gap: Spacing.fieldGap, marginTop: 8 },
+  label: { fontSize: Typography.label },
+  input: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 14, fontSize: Typography.input, backgroundColor: '#fff' },
   pill: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 20, borderWidth: 1, borderColor: '#cbd5e1' },
   pillActive: { backgroundColor: '#FFF4E8', borderColor: Brand.saffron },
-  pillText: { fontSize: 14 },
+  pillText: { fontSize: Typography.label },
   pillTextActive: { color: Brand.saffron, fontWeight: '700' },
-  submit: { backgroundColor: Brand.saffron, paddingVertical: 14, borderRadius: 10, marginTop: 16 },
+  submit: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
   submitDisabled: { backgroundColor: '#ffcd9f' },
-  submitText: { color: 'white', textAlign: 'center', fontWeight: '700', fontSize: 16 },
+  submitText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });

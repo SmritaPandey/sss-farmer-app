@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Brand } from '@/constants/Colors';
+import { Typography, Spacing } from '@/constants/Theme';
 
 export default function ConsentScreen() {
   const [agree, setAgree] = React.useState(false);
@@ -33,13 +34,13 @@ export default function ConsentScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 24, gap: 16, justifyContent: 'center', backgroundColor: '#fff' },
   logo: { width: 72, height: 72, alignSelf: 'center', marginBottom: 8 },
-  title: { fontSize: 24, fontWeight: '700', textAlign: 'center' },
-  subtitle: { fontSize: 14, color: '#637488', textAlign: 'center' },
+  title: { fontSize: Typography.title, fontWeight: '800', textAlign: 'center' },
+  subtitle: { fontSize: Typography.subtitle, color: '#637488', textAlign: 'center' },
   checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
   checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: '#999' },
   checkboxActive: { backgroundColor: Brand.saffron, borderColor: Brand.saffron },
   checkboxText: { flex: 1, fontSize: 13 },
-  cta: { backgroundColor: Brand.saffron, paddingVertical: 14, borderRadius: 10, marginTop: 16 },
+  cta: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
   ctaDisabled: { backgroundColor: '#ffcd9f' },
-  ctaText: { color: 'white', textAlign: 'center', fontWeight: '700', fontSize: 16 },
+  ctaText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });
