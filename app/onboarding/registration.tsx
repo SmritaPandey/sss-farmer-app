@@ -9,6 +9,7 @@ import { getDistricts, getBlocks, getCommittees, getPacsList, getFarmerTypes, ge
 import { useI18n } from '@/contexts/i18n';
 import { db } from '@/src/config/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import WatermarkBackground from '@/components/WatermarkBackground';
 
 export default function RegistrationScreen() {
   const { t, lang } = useI18n() as any;
@@ -94,6 +95,7 @@ export default function RegistrationScreen() {
   );
 
   return (
+    <WatermarkBackground>
     <ScrollView contentContainerStyle={styles.container}>
       <Image source={require('@/assets/images/icon.png')} style={styles.logo} />
   <Text style={styles.title}>{t('welcome')}</Text>
@@ -212,6 +214,7 @@ export default function RegistrationScreen() {
         <Text style={styles.submitText}>{submitting ? '...' : `${t('submit_register')} / Register`}</Text>
       </Pressable>
     </ScrollView>
+    </WatermarkBackground>
   );
 }
 
