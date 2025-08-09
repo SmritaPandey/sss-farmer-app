@@ -9,6 +9,8 @@ import { auth } from '@/src/config/firebase';
 import { signInWithPhoneNumber } from 'firebase/auth';
 import { firebaseConfig } from '@/src/config/firebase';
 
+const hasRealFirebaseConfig = !!firebaseConfig?.apiKey && !/dummy/i.test(String(firebaseConfig.apiKey));
+
 export default function OtpScreen() {
   const [mobile, setMobile] = React.useState('');
   const [digits, setDigits] = React.useState<string[]>(['', '', '', '', '', '']);
@@ -82,11 +84,13 @@ export default function OtpScreen() {
 
   return (
     <KeyboardAvoidingView behavior={Platform.select({ ios: 'padding', android: undefined })} style={styles.container}>
-      <FirebaseRecaptchaVerifierModal
-        ref={recaptchaVerifier}
-        firebaseConfig={firebaseConfig as any}
-        attemptInvisibleVerification
-      />
+      {hasRealFirebaseConfig ? (
+        <FirebaseRecaptchaVerifierModal
+          ref={recaptchaVerifier}
+          firebaseConfig={firebaseConfig as any}
+          attemptInvisibleVerification
+        />
+      ) : null}
       <Image source={require('@/assets/images/icon.png')} style={styles.logo} />
       <Text style={styles.title}>ओटीपी सत्यापन</Text>
 
@@ -102,11 +106,11 @@ export default function OtpScreen() {
         />
       </View>
 
-      <Pressable onPress={sendOtp} disabled={!phoneOk || sending} style={[styles.cta, (!phoneOk || sending) && styles.ctaDisabled]}>
+  <Pressable onPress={sendOtp} disabled={!phoneOk || sending} style={[styles.cta, (!phoneOk || sending) && styles.ctaDisabled]}>
         <Text style={styles.ctaText}>{sending ? '...' : 'ओटीपी भेजें / Send OTP'}</Text>
       </Pressable>
 
-      {confirmation && (
+  {confirmation && (
         <>
           <Text style={styles.subtle}>कोड भेजा गया है ******{mobile.slice(-4)}</Text>
           <Text style={styles.timer}>{mm}:{ss}</Text>
@@ -141,6 +145,11 @@ export default function OtpScreen() {
       )}
 
       {error ? <Text style={{ color: '#ef4444', textAlign: 'center', marginTop: 6 }}>{error}</Text> : null}
+      {!hasRealFirebaseConfig ? (
+        <Text style={{ color: '#b45309', textAlign: 'center', marginTop: 6 }}>
+          Add valid Firebase config in src/config/firebase.ts to enable OTP.
+        </Text>
+      ) : null}
     </KeyboardAvoidingView>
   );
 }
