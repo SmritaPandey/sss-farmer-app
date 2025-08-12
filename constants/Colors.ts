@@ -33,3 +33,13 @@ export const Brand = {
   green: indiaGreen,
   white: '#ffffff',
 };
+
+// Agriculture-friendly supporting palette
+export const Palette = {
+  leafLight: '#EAF8F0',
+  sunLight: '#FFF7E6',
+  skyLight: '#E9F5FF',
+  outlineLeaf: '#E5F0EB',
+  outlineSun: '#FFE4CC',
+  soil: '#8B5E3C',
+};

@@ -3,36 +3,39 @@ import { View, Text, Pressable, StyleSheet, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Brand } from '@/constants/Colors';
 import { Typography, Spacing } from '@/constants/Theme';
+import { useI18n } from '@/contexts/i18n';
+import MainBackgroundImage from '@/components/MainBackgroundImage';
 
 export default function ConsentScreen() {
+  const { t } = useI18n();
   const [agree, setAgree] = React.useState(false);
   return (
-    <View style={styles.container}>
-      <Image source={require('@/assets/images/icon.png')} style={styles.logo} />
-      <Text style={styles.title}>सहमति</Text>
-      <Text style={styles.subtitle}>
-        मैं एतद्वारा पुष्टि करता/करती हूँ कि मैंने ऐप की सेवा की शर्तें और गोपनीयता नीति को पढ़ा और स्वीकार किया है, और मैं नीति अनुसार अपने डेटा के संग्रह और उपयोग के लिए सहमति प्रदान करता/करती हूँ।
-      </Text>
+    <MainBackgroundImage blurIntensity={25} overlayOpacity={0.3} showWatermark={true}>
+      <View style={styles.container}>
+  {/* App logo removed */}
+        <Text style={styles.title}>{t('consent_title', 'Consent')}</Text>
+        <Text style={styles.subtitle}>{t('consent_text', 'I agree to Terms and Privacy Policy and consent to data processing as per policy.')}</Text>
 
-      <Pressable onPress={() => setAgree((a) => !a)} style={styles.checkboxRow}>
-        <View style={[styles.checkbox, agree && styles.checkboxActive]} />
-        <Text style={styles.checkboxText}>मैं सहमत हूँ</Text>
-      </Pressable>
+        <Pressable onPress={() => setAgree((a) => !a)} style={styles.checkboxRow}>
+          <View style={[styles.checkbox, agree && styles.checkboxActive]} />
+    <Text style={styles.checkboxText}>{t('i_agree', 'I agree')}</Text>
+        </Pressable>
 
-      <Pressable
-        accessibilityRole="button"
-        disabled={!agree}
-        onPress={() => router.push('/onboarding/farmer-id')}
-        style={[styles.cta, !agree && styles.ctaDisabled]}
-      >
-        <Text style={styles.ctaText}>जारी करें</Text>
-      </Pressable>
-    </View>
+        <Pressable
+          accessibilityRole="button"
+          disabled={!agree}
+          onPress={() => router.push('/onboarding/auth')}
+          style={[styles.cta, !agree && styles.ctaDisabled]}
+        >
+    <Text style={styles.ctaText}>{t('proceed')}</Text>
+        </Pressable>
+      </View>
+    </MainBackgroundImage>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, gap: 16, justifyContent: 'center', backgroundColor: '#fff' },
+  container: { flex: 1, padding: 24, gap: 16, justifyContent: 'center' },
   logo: { width: 72, height: 72, alignSelf: 'center', marginBottom: 8 },
   title: { fontSize: Typography.title, fontWeight: '800', textAlign: 'center' },
   subtitle: { fontSize: Typography.subtitle, color: '#637488', textAlign: 'center' },
@@ -40,7 +43,7 @@ const styles = StyleSheet.create({
   checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: '#999' },
   checkboxActive: { backgroundColor: Brand.saffron, borderColor: Brand.saffron },
   checkboxText: { flex: 1, fontSize: 13 },
-  cta: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
+  cta: { backgroundColor: Brand.saffron, paddingVertical: 18, borderRadius: 12, marginTop: 16 },
   ctaDisabled: { backgroundColor: '#ffcd9f' },
   ctaText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });

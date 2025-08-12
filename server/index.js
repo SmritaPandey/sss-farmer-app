@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import { customAlphabet } from 'nanoid';
+import fs from 'fs';
+import path from 'path';
 
 const app = express();
 app.use(cors());
@@ -11,12 +13,10 @@ const nanoid = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 8);
 // In-memory data stores (replace with DB later)
 const db = {
   users: new Map(),
-  pacs: [
-    { id: 'pacs_kashipur_2', name: 'Kashipur No. II Primary Agriculture Society Ltd.' },
-    { id: 'pacs_doiwala', name: 'Doiwala Primary Agriculture Society' },
-  ],
+  pacs: [],
   requests: [],
   schemes: [{ id: 'pm-kisan', title: 'PM Kisan Samman Nidhi' }],
+  procurements: [],
 };
 
 // In-memory OTP store
@@ -24,10 +24,23 @@ const otps = new Map(); // key: phone, value: { code, exp }
 
 app.get('/health', (_, res) => res.json({ ok: true }));
 
+// Load PACS dataset if present
+function tryLoadPacs() {
+  const p = path.join(process.cwd(), 'data', 'pacs.json');
+  if (fs.existsSync(p)) {
+    try { db.pacs = JSON.parse(fs.readFileSync(p, 'utf-8')); }
+    catch { db.pacs = []; }
+  }
+}
+tryLoadPacs();
+
 app.get('/pacs', (req, res) => {
-  const { district } = req.query;
-  // For demo, ignore district and return all
-  res.json(db.pacs);
+  const { district, block, q } = req.query;
+  let list = db.pacs;
+  if (district) list = list.filter(p => (p.district || '').toLowerCase() === String(district).toLowerCase());
+  if (block) list = list.filter(p => (p.block || '').toLowerCase() === String(block).toLowerCase());
+  if (q) list = list.filter(p => p.name.toLowerCase().includes(String(q).toLowerCase()));
+  res.json(list);
 });
 
 app.post('/auth/send-otp', (req, res) => {
@@ -67,6 +80,12 @@ app.post('/users', (req, res) => {
   res.json({ ok: true });
 });
 
+app.get('/users/:uid', (req, res) => {
+  const u = db.users.get(req.params.uid);
+  if (!u) return res.status(404).json({ error: 'not_found' });
+  res.json(u);
+});
+
 app.post('/requests', (req, res) => {
   const { type, userId, item, qty, preferredDate } = req.body || {};
   if (!type || !userId) return res.status(400).json({ error: 'missing fields' });
@@ -76,9 +95,56 @@ app.post('/requests', (req, res) => {
   res.json(rec);
 });
 
+// Fertilizer request convenience route
+app.post('/fertilizer-requests', (req, res) => {
+  const { userId, items, qty } = req.body || {};
+  if (!userId || !Array.isArray(items) || !qty) return res.status(400).json({ error: 'missing fields' });
+  const id = 'FREQ' + nanoid();
+  const rec = { id, type: 'fertilizer', userId, items, qty, status: 'queued', createdAt: Date.now() };
+  db.requests.push(rec);
+  res.json(rec);
+});
+
 app.get('/schemes/eligible', (req, res) => {
   // Demo: return all
   res.json(db.schemes);
+});
+
+// Districts/Blocks/Tehsils endpoints (read from assets)
+function loadJSON(rel) {
+  const p = path.join(process.cwd(), '..', 'assets', 'data', rel);
+  return JSON.parse(fs.readFileSync(p, 'utf-8'));
+}
+const blocks = loadJSON('up-blocks.json');
+let tehsils = {};
+try { tehsils = loadJSON('up-tehsils.json'); } catch { tehsils = {}; }
+
+app.get('/districts', (req, res) => {
+  res.json(Object.keys(blocks));
+});
+
+app.get('/blocks', (req, res) => {
+  const { district } = req.query;
+  if (!district) return res.status(400).json({ error: 'district required' });
+  const list = blocks[String(district).toLowerCase()];
+  if (!list) return res.status(404).json({ error: 'not_found' });
+  res.json(list);
+});
+
+app.get('/tehsils', (req, res) => {
+  const { district } = req.query;
+  if (!district) return res.status(400).json({ error: 'district required' });
+  const list = tehsils[String(district).toLowerCase()];
+  if (!list) return res.status(404).json({ error: 'not_found' });
+  res.json(list);
+});
+
+// Procurement records by user
+app.get('/procurements', (req, res) => {
+  const { uid } = req.query;
+  if (!uid) return res.status(400).json({ error: 'uid required' });
+  const list = db.requests.filter(r => r.type === 'procurement' && r.userId === uid);
+  res.json(list);
 });
 
 // Admin routes

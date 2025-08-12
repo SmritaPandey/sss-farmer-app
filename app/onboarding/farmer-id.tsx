@@ -4,24 +4,34 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import { Brand } from '@/constants/Colors';
 import { Typography, Spacing } from '@/constants/Theme';
+import { useI18n } from '@/contexts/i18n';
+import FormScreen, { FormScreenHandle } from '@/components/FormScreen';
+import MainBackgroundImage from '@/components/MainBackgroundImage';
 
 export default function FarmerIdScreen() {
+  const { t } = useI18n();
   const [fid, setFid] = React.useState('');
   const isValid = /^\d{16}$/.test(fid);
+  const formRef = React.useRef<FormScreenHandle>(null);
 
   return (
-    <View style={styles.container}>
-      <Image source={require('@/assets/images/icon.png')} style={styles.logo} />
-      <Text style={styles.title}>अपना 16-अंकीय किसान आईडी दर्ज करें</Text>
+    <MainBackgroundImage>
+      <FormScreen ref={formRef} contentContainerStyle={styles.container}>
+  {/* App logo removed */}
+  <Text style={styles.title}>{t('enter_farmer_id', 'Enter your 16-digit Farmer ID')}</Text>
 
-      <TextInput
+    <TextInput
         value={fid}
         onChangeText={setFid}
         placeholder="1234567890123456"
         keyboardType="number-pad"
         maxLength={16}
-        style={styles.input}
+  style={styles.input}
+  onFocus={(e) => formRef.current?.scrollToTarget(e.nativeEvent.target, 8)}
       />
+      {!isValid && fid.length > 0 ? (
+        <Text style={{ fontSize: 12, color: '#ef4444', textAlign: 'center' }}>{t('err_farmer_id')}</Text>
+      ) : null}
 
       <Pressable
         accessibilityRole="button"
@@ -32,18 +42,28 @@ export default function FarmerIdScreen() {
         }}
         style={[styles.cta, !isValid && styles.ctaDisabled]}
       >
-        <Text style={styles.ctaText}>जारी करें</Text>
+  <Text style={styles.ctaText}>{t('proceed')}</Text>
       </Pressable>
-    </View>
+      </FormScreen>
+    </MainBackgroundImage>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, gap: 16, justifyContent: 'center', backgroundColor: '#fff' },
+  container: { flex: 1, padding: 24, gap: 16, justifyContent: 'center' },
   logo: { width: 72, height: 72, alignSelf: 'center', marginBottom: 8 },
   title: { fontSize: Typography.section, fontWeight: '800', textAlign: 'center' },
-  input: { fontSize: Typography.input, borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 14, textAlign: 'center' },
-  cta: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
+  input: { 
+    fontSize: Typography.input, 
+    borderWidth: 1, 
+    borderColor: '#d1d5db', 
+    borderRadius: 12, 
+    padding: 18, 
+    textAlign: 'center',
+    backgroundColor: '#fff',
+    minHeight: 56
+  },
+  cta: { backgroundColor: Brand.saffron, paddingVertical: 18, borderRadius: 12, marginTop: 16 },
   ctaDisabled: { backgroundColor: '#ffcd9f' },
   ctaText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });

@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { I18nProvider } from '@/contexts/i18n';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { ToastProvider } from '@/components/Toast';
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -21,8 +22,9 @@ export default function RootLayout() {
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <SafeAreaProvider>
-      <I18nProvider>
+  <SafeAreaProvider>
+  <I18nProvider>
+  <ToastProvider>
       <Stack>
   {/* Onboarding flow stack */}
   <Stack.Screen name="onboarding" options={{ headerShown: false }} />
@@ -30,6 +32,7 @@ export default function RootLayout() {
         <Stack.Screen name="+not-found" />
       </Stack>
   <StatusBar style="auto" />
+  </ToastProvider>
   </I18nProvider>
   </SafeAreaProvider>
     </ThemeProvider>

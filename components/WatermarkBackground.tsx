@@ -14,11 +14,11 @@ export const WatermarkBackground = ({ children }: { children: React.ReactNode })
 };
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#F5F9F7' },
+  root: { flex: 1, backgroundColor: '#FFF7ED' },
   content: { flex: 1 },
   blob: {
     position: 'absolute',
-    backgroundColor: '#DFF2E9',
+  backgroundColor: '#FFE8D6',
     opacity: 0.8,
     width: 280,
     height: 280,

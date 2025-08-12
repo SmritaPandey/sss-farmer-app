@@ -1,0 +1,10 @@
+{
+  "agra": ["Agra", "Fatehabad", "Kiraoli", "Kheragarh", "Bah"],
+  "aligarh": ["Aligarh", "Iglas", "Atrauli", "Khair", "Gabhana"],
+  "prayagraj": ["Sadar", "Karchhana", "Handia", "Phulpur", "Meja", "Bara"],
+  "lucknow": ["Sadar", "Mohanlalganj", "Malihabad", "Bakshi Ka Talab"],
+  "varanasi": ["Sadar", "Pindra", "Raja Talab"],
+  "amethi": ["Amethi", "Gauriganj", "Jagdishpur", "Tiloi"],
+  "gorakhpur": ["Sadar", "Bansgaon", "Campierganj", "Sahjanwa"],
+  "bareilly": ["Sadar", "Aonla", "Baheri", "Faridpur"]
+}

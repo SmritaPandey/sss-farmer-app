@@ -1,15 +1,16 @@
 export const Typography = {
-  title: 26,
-  subtitle: 15,
-  section: 18,
-  label: 16,
-  input: 16,
-  button: 17,
-  cardTitle: 16,
+  title: 36,
+  subtitle: 20,
+  section: 24,
+  label: 20,
+  input: 21,
+  button: 21,
+  cardTitle: 21,
 };
 
 export const Spacing = {
-  screenPadding: 20,
-  fieldGap: 8,
+  // Slightly increased for better page breathing room
+  screenPadding: 22,
+  fieldGap: 6,
   sectionTop: 12,
 };

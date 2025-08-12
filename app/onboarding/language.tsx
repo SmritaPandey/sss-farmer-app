@@ -5,6 +5,8 @@ import { router } from 'expo-router';
 import { Brand } from '@/constants/Colors';
 import { Typography, Spacing } from '@/constants/Theme';
 import { useI18n } from '@/contexts/i18n';
+import MainBackgroundImage from '@/components/MainBackgroundImage';
+import OnboardingHeader from '@/components/OnboardingHeader';
 
 export default function LanguageScreen() {
   const [selected, setSelected] = React.useState<'hi' | 'en'>('hi');
@@ -12,49 +14,50 @@ export default function LanguageScreen() {
   const { t, setLang } = useI18n();
 
   return (
-    <View style={styles.container}>
-      <Image source={require('@/assets/images/icon.png')} style={styles.logo} />
-  <Text style={styles.title}>{t('choose_language')}</Text>
-  <Text style={styles.subtitle}>{t('pick_preferred_language')}</Text>
+    <MainBackgroundImage blurIntensity={32} overlayOpacity={0.6} showWatermark={true}>
+      <OnboardingHeader />
+      <View style={styles.container}>
+  {/* App logo removed */}
+    <Text style={styles.title}>{t('choose_language')}</Text>
+    <Text style={styles.subtitle}>{t('pick_preferred_language')}</Text>
 
-      <View style={styles.row}>
-        {(['hi', 'en'] as const).map((v) => (
-          <Pressable
-            key={v}
-            onPress={async () => { setSelected(v); await setLang(v); }}
-            style={[styles.pill, selected === v && styles.pillActive]}
-          >
-            <Text style={[styles.pillText, selected === v && styles.pillTextActive]}>
-              {v === 'hi' ? 'हिंदी' : 'English'}
-            </Text>
-          </Pressable>
-        ))}
+        <View style={styles.row}>
+          {(['hi', 'en'] as const).map((v) => (
+            <Pressable
+              key={v}
+              onPress={async () => { setSelected(v); await setLang(v); }}
+              style={[styles.pill, selected === v && styles.pillActive]}
+            >
+              <Text style={[styles.pillText, selected === v && styles.pillTextActive]}>
+                {v === 'hi' ? 'हिंदी' : 'English'}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+
+        <Pressable onPress={() => setConsent((c) => !c)} style={styles.checkboxRow}>
+          <View style={[styles.checkbox, consent && styles.checkboxActive]} />
+          <Text style={styles.checkboxText}>{t('consent_text')}</Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          disabled={!consent}
+          onPress={async () => {
+            await setLang(selected);
+            router.push('/onboarding/auth-choice');
+          }}
+          style={[styles.cta, !consent && styles.ctaDisabled]}
+        >
+          <Text style={styles.ctaText}>{t('continue')}</Text>
+        </Pressable>
       </View>
-
-      <Pressable onPress={() => setConsent((c) => !c)} style={styles.checkboxRow}>
-        <View style={[styles.checkbox, consent && styles.checkboxActive]} />
-        <Text style={styles.checkboxText}>
-          मैं शर्तों और गोपनीयता नीति से सहमत हूँ
-        </Text>
-      </Pressable>
-
-      <Pressable
-        accessibilityRole="button"
-        disabled={!consent}
-        onPress={async () => {
-          await setLang(selected);
-          router.push('/onboarding/otp');
-        }}
-        style={[styles.cta, !consent && styles.ctaDisabled]}
-      >
-        <Text style={styles.ctaText}>{t('continue')}</Text>
-      </Pressable>
-    </View>
+    </MainBackgroundImage>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 24, gap: 16, justifyContent: 'center', backgroundColor: '#fff' },
+  container: { flex: 1, padding: 24, gap: 16, justifyContent: 'center' },
   logo: { width: 72, height: 72, alignSelf: 'center', marginBottom: 8 },
   title: { fontSize: Typography.title, fontWeight: '800', textAlign: 'center' },
   subtitle: { fontSize: Typography.subtitle, color: '#637488', textAlign: 'center' },
@@ -67,7 +70,7 @@ const styles = StyleSheet.create({
   checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: '#999' },
   checkboxActive: { backgroundColor: Brand.saffron, borderColor: Brand.saffron },
   checkboxText: { flex: 1, fontSize: 13 },
-  cta: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
+  cta: { backgroundColor: Brand.saffron, paddingVertical: 18, borderRadius: 12, marginTop: 16 },
   ctaDisabled: { backgroundColor: '#ffcd9f' },
   ctaText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });
