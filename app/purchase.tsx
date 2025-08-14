@@ -12,7 +12,6 @@ import { Ionicons } from '@expo/vector-icons';
 // Booking happens from Cart now
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchProducts, Product } from '@/src/services/products';
-import { BASE_URL } from '@/src/config/api';
 
 type Prod = { key: string; labelKey: string; price: number; img?: any };
 
@@ -56,11 +55,10 @@ export default function PurchaseScreen() {
     })();
   }, []);
 
-  // Load products from backend if API base is configured
+  // Load products from Firestore (or REST fallback via service)
   React.useEffect(() => {
     (async () => {
       try {
-        if (!BASE_URL) return;
         const ferts = await fetchProducts({ category: 'fert', active: true });
         const seeds = await fetchProducts({ category: 'seed', active: true });
         const toProd = (p: Product): Prod => ({ key: p.id, labelKey: p.name, price: p.price, img: getIcon('fertilizer') });
@@ -75,11 +73,12 @@ export default function PurchaseScreen() {
   const total = list.reduce((sum, p) => sum + (quantities[p.key] || 0) * p.price, 0);
 
   const addToCart = async () => {
+  const remoteOn = (kind === 'fert' ? remoteFerts : remoteSeeds) != null;
     const items = list
       .filter((p) => (quantities[p.key] || 0) > 0)
       .map((p) => ({
         id: `${kind}:${p.key}`,
-        name: t(p.labelKey as any),
+    name: remoteOn ? p.labelKey : t(p.labelKey as any),
         type: kind === 'fert' ? t('fertilizers') : t('seeds'),
         quantity: quantities[p.key] || 0,
         price: p.price,
@@ -121,7 +120,7 @@ export default function PurchaseScreen() {
             <View key={p.key} style={styles.cartItem}>
               <Image source={p.img || getIcon('fertilizer')} style={styles.itemImage} />
               <View style={styles.itemDetails}>
-                <Text style={styles.itemName}>{remoteFerts || remoteSeeds ? p.labelKey : t(p.labelKey as any)}</Text>
+                <Text style={styles.itemName}>{(kind === 'fert' ? remoteFerts : remoteSeeds) ? p.labelKey : t(p.labelKey as any)}</Text>
                 <Text style={styles.itemPrice}>₹{p.price}</Text>
               </View>
               <View style={styles.quantityControls}>
