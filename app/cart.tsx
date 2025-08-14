@@ -138,7 +138,7 @@ export default function CartScreen() {
 
   return (
     <MainBackgroundImage blurIntensity={30} overlayOpacity={0.4} showWatermark={true}>
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={{ paddingBottom: 160 }}>
         <View style={styles.header}>
           <Pressable onPress={() => router.back()} style={styles.backBtn}>
             <Ionicons name="arrow-back" size={24} color={Brand.green} />
