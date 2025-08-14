@@ -2,7 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Brand } from '@/constants/Colors';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import MainBackgroundImage from '@/components/MainBackgroundImage';
 import FarmerCard from '@/components/FarmerCard';
 import FarmerCardBack from '@/components/FarmerCardBack';
@@ -38,6 +38,19 @@ export default function ProfileScreen() {
 			} catch {}
 		})();
 	}, []);
+
+	useFocusEffect(
+		React.useCallback(() => {
+			let active = true;
+			(async () => {
+				try {
+					const cached = await AsyncStorage.getItem('profile_payload');
+					if (cached && active) setProfile(JSON.parse(cached));
+				} catch {}
+			})();
+			return () => { active = false; };
+		}, [])
+	);
 
 		return (
 			<MainBackgroundImage blurIntensity={30} overlayOpacity={0.4} showWatermark={true}>
