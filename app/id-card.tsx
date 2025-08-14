@@ -397,7 +397,7 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   downloadBtnDisabled: {
-    backgroundColor: '#9ca3af',
+  backgroundColor: Brand.saffronDisabledSolid,
   },
   downloadBtnText: {
     color: 'white',

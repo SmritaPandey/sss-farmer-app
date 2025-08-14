@@ -10,13 +10,13 @@ export const AgricultureIcons = {
   profile: require('./profile.png'),
   cart: require('./cart.png'),
   notifications: require('./notifications.png'),
-  background: require('./main background.jpg'),
-  mainBackground: require('./main background.jpg'),
-  upGov: require('./UPGov.jpg'),
+  background: require('./main-background.jpg'),
+  mainBackground: require('./main-background.jpg'),
+  upGov: require('./up-gov.jpg'),
   twentyfive: require('./25years.png'),
   user: require('./user.jpg'),
-  yogi: require('./yogi adityanath.png'),
-  jpsRathore: require('./JPSRathore .png'),
+  yogi: require('./yogi-adityanath.png'),
+  jpsRathore: require('./jpsrathore.png'),
   sahkarSarthi: require('./sahkarsarthi.png'),
 } as const;
 

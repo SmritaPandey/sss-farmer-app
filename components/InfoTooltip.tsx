@@ -2,12 +2,14 @@ import React from 'react';
 import { Modal, Pressable, Text, View, StyleSheet } from 'react-native';
 import { Brand } from '@/constants/Colors';
 import { Typography } from '@/constants/Theme';
+import { useI18n } from '@/contexts/i18n';
 
 export function InfoTooltip({ text }: { text: string }) {
   const [open, setOpen] = React.useState(false);
+  const { t } = useI18n();
   return (
     <>
-      <Pressable onPress={() => setOpen(true)} accessibilityLabel="info" accessibilityHint={text}>
+      <Pressable onPress={() => setOpen(true)} accessibilityLabel={t('info', 'Info')} accessibilityHint={text}>
         <Text style={styles.icon}>i</Text>
       </Pressable>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
@@ -15,7 +17,7 @@ export function InfoTooltip({ text }: { text: string }) {
         <View style={styles.sheet}>
           <Text style={styles.tipText}>{text}</Text>
           <Pressable style={styles.btn} onPress={() => setOpen(false)}>
-            <Text style={styles.btnText}>OK</Text>
+            <Text style={styles.btnText}>{t('ok', 'OK')}</Text>
           </Pressable>
         </View>
       </Modal>

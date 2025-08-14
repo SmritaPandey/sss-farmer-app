@@ -49,8 +49,8 @@ export default function PacsDirectoryScreen() {
     ) : err ? (
           <View style={{ gap: 8 }}>
       <Text style={{ color: '#b91c1c' }}>{t('error_loading', 'Could not load from server. Showing mock directory')}</Text>
-            <Pressable onPress={() => load()} style={{ alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: Brand.saffron }}>
-              <Text style={{ color: 'white', fontWeight: '700' }}>{t('retry', 'Retry')}</Text>
+            <Pressable onPress={() => load()} style={{ alignSelf: 'flex-start', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 8, backgroundColor: '#ffffff', borderWidth: 2, borderColor: Brand.saffron }}>
+              <Text style={{ color: Brand.saffron, fontWeight: '700' }}>{t('retry', 'Retry')}</Text>
             </Pressable>
           </View>
         ) : pacs.length === 0 ? (

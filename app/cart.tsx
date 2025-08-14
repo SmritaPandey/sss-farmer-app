@@ -1,12 +1,21 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Pressable, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Pressable, Image, Modal, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import MainBackgroundImage from '@/components/MainBackgroundImage';
 import { Brand, Palette } from '@/constants/Colors';
 import { Typography, Spacing } from '@/constants/Theme';
 import { useI18n } from '@/contexts/i18n';
-import { createPlaceholderIcon, getIcon } from '@/assets/icons';
+import { createPlaceholderIcon, getIcon, AgricultureIcons } from '@/assets/icons';
+import { getCart, updateQuantity as storeUpdateQty, clearCart } from '@/src/store/cart';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Calendar, DateData } from 'react-native-calendars';
+import { getSlotAvailability, bookSlot } from '@/src/services/slots';
+import { createOrder, OrderItem } from '@/src/services/orders';
+import { saveAndShareReceipt } from '@/src/services/receipt';
+import { Select } from '@/components/Select';
+import { getDistricts, getBlocks, getPacsList } from '@/constants/mockData';
+import { useToast } from '@/components/Toast';
 
 interface CartItem {
   id: string;
@@ -17,52 +26,114 @@ interface CartItem {
   image: any;
 }
 
-const mockCartItems: CartItem[] = [
-  {
-    id: '1',
-    name: 'Urea Fertilizer',
-    type: '50kg bag',
-    quantity: 3,
-    price: 250,
-    image: getIcon('fertilizer'),
-  },
-  {
-    id: '2', 
-    name: 'NPK Complex',
-    type: '50kg bag',
-    quantity: 2,
-    price: 320,
-    image: createPlaceholderIcon('🧪'),
-  },
-  {
-    id: '3',
-    name: 'Pesticide Spray',
-    type: '1L bottle',
-    quantity: 1,
-    price: 185,
-    image: createPlaceholderIcon('🚿'),
-  },
-];
+const mockCartItems: CartItem[] = [];
 
 export default function CartScreen() {
   const { t } = useI18n();
+  const toast = useToast();
   const [items, setItems] = React.useState<CartItem[]>(mockCartItems);
+  const [modalOpen, setModalOpen] = React.useState(false);
+  const [selectedDate, setSelectedDate] = React.useState<string | null>(null);
+  const [loadingSlots, setLoadingSlots] = React.useState(false);
+  const [slots, setSlots] = React.useState<{ hour: string; remaining: number }[]>([]);
+  const [selectedHour, setSelectedHour] = React.useState<string | null>(null);
+  const [booking, setBooking] = React.useState(false);
+  const [token, setToken] = React.useState<string | null>(null);
+  const [centerDistrict, setCenterDistrict] = React.useState<string>('');
+  const [centerBlock, setCenterBlock] = React.useState<string>('');
+  const [centerId, setCenterId] = React.useState<string>('');
+  const [createdOrderMeta, setCreatedOrderMeta] = React.useState<{ id: string; token: string } | null>(null);
 
-  const updateQuantity = (id: string, newQuantity: number) => {
-    if (newQuantity <= 0) {
-      setItems(items.filter(item => item.id !== id));
-    } else {
-      setItems(items.map(item => 
-        item.id === id ? { ...item, quantity: newQuantity } : item
-      ));
-    }
+  React.useEffect(() => {
+    (async () => {
+      const stored = await getCart();
+      const shaped: CartItem[] = stored.map((it) => ({
+        id: it.id,
+        name: it.name,
+        type: it.type || '',
+        quantity: it.quantity,
+        price: it.price,
+        image: it.imageKey ? AgricultureIcons[it.imageKey] : getIcon('fertilizer'),
+      }));
+      setItems(shaped);
+    })();
+  }, []);
+
+  const updateQuantity = async (id: string, newQuantity: number) => {
+    const next = await storeUpdateQty(id, newQuantity);
+    const shaped: CartItem[] = next.map((it) => ({
+      id: it.id,
+      name: it.name,
+      type: it.type || '',
+      quantity: it.quantity,
+      price: it.price,
+      image: it.imageKey ? AgricultureIcons[it.imageKey] : getIcon('fertilizer'),
+    }));
+    setItems(shaped);
   };
 
   const totalAmount = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
   const proceedToCheckout = () => {
-    // Navigate to checkout or show success message
-    router.push('/fertilizer-request');
+    if (items.length === 0) return;
+    setModalOpen(true);
+  };
+
+  const todayStr = React.useMemo(() => {
+    const d = new Date();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${d.getFullYear()}-${mm}-${dd}`;
+  }, []);
+
+  const loadSlots = React.useCallback(async (dateStr: string) => {
+    try {
+      setLoadingSlots(true);
+      const a = await getSlotAvailability(dateStr);
+      setSlots(a);
+    } catch (e) {
+      toast.show(t('retry', 'Retry'));
+    } finally {
+      setLoadingSlots(false);
+    }
+  }, [t, toast]);
+
+  const onSelectDate = async (day: DateData) => {
+    const dateStr = day.dateString;
+    setSelectedDate(dateStr);
+    setSelectedHour(null);
+    await loadSlots(dateStr);
+  };
+
+  const makeOrder = async () => {
+    if (!selectedDate || !selectedHour) return;
+    try {
+      setBooking(true);
+      // 1) book slot (one booking per order)
+      await bookSlot(selectedDate, selectedHour);
+
+      // 2) create order
+      const uid = await AsyncStorage.getItem('farmer_id');
+      const orderItems: OrderItem[] = items.map((it) => ({ id: it.id, name: it.name, type: it.type, quantity: it.quantity, price: it.price }));
+      // Determine kind: fert | seed | mixed from item ids (format kind:key)
+      const kinds = new Set(items.map((it) => it.id.split(':')[0]));
+      const kind = kinds.size === 1 ? (Array.from(kinds)[0] as 'fert' | 'seed') : 'mixed';
+  const created = await createOrder({ userId: uid, kind, items: orderItems, total: totalAmount, date: selectedDate, hour: selectedHour, centerId, centerName: centerId });
+  setToken(created.token);
+  setCreatedOrderMeta(created);
+      // Clear cart after successful order
+      await clearCart();
+      setItems([]);
+    } catch (err: any) {
+      if (String(err?.message) === 'sold_out') {
+        toast.show(t('sold_out', 'Sold out'));
+        if (selectedDate) loadSlots(selectedDate);
+      } else {
+        toast.show(t('retry', 'Retry'));
+      }
+    } finally {
+      setBooking(false);
+    }
   };
 
   return (
@@ -81,7 +152,7 @@ export default function CartScreen() {
             <Image source={createPlaceholderIcon('🛒')} style={styles.emptyIcon} />
             <Text style={styles.emptyTitle}>{t('empty_cart', 'Your cart is empty')}</Text>
             <Text style={styles.emptySubtitle}>{t('add_items', 'Add fertilizers and products to get started')}</Text>
-            <Pressable style={styles.shopBtn} onPress={() => router.push('/fertilizer')}>
+            <Pressable style={styles.shopBtn} onPress={() => router.push('/purchase')}>
               <Text style={styles.shopBtnText}>{t('start_shopping', 'Start Shopping')}</Text>
             </Pressable>
           </View>
@@ -138,6 +209,111 @@ export default function CartScreen() {
           </>
         )}
       </ScrollView>
+
+      {/* Booking Modal */}
+      <Modal visible={modalOpen} transparent animationType="fade" onRequestClose={() => setModalOpen(false)}>
+        <View style={styles.modalWrap}>
+          <View style={styles.modalCard}>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+              <Text style={{ fontSize: Typography.subtitle, fontWeight: '800', color: Brand.green }}>{t('book_slot', 'Book slot')}</Text>
+              <Pressable onPress={() => setModalOpen(false)} style={styles.iconBtn}><Ionicons name="close" size={20} color="#111" /></Pressable>
+            </View>
+
+            {/* Date picker */}
+            <Text style={styles.sectionTitle}>{t('select_date', 'Select date')}</Text>
+            <Calendar
+              minDate={todayStr}
+              onDayPress={onSelectDate}
+              markedDates={selectedDate ? { [selectedDate]: { selected: true } } : undefined}
+              theme={{
+                selectedDayBackgroundColor: Brand.saffron,
+                todayTextColor: Brand.saffron,
+              }}
+            />
+
+            {/* Slots */}
+            <View style={{ marginTop: 12 }}>
+              <Text style={styles.sectionTitle}>{t('select_time_slot', 'Select time slot')}</Text>
+              {loadingSlots ? (
+                <View style={{ paddingVertical: 12 }}><ActivityIndicator color={Brand.saffron} /></View>
+              ) : (
+                <View style={styles.slotsWrap}>
+                  {slots.map((s) => {
+                    const disabled = s.remaining <= 0;
+                    const on = selectedHour === s.hour;
+                    return (
+                      <Pressable
+                        key={s.hour}
+                        disabled={disabled}
+                        onPress={() => setSelectedHour(s.hour)}
+                        style={[styles.slotBtn, on && styles.slotBtnOn, disabled && styles.slotBtnDisabled]}
+                      >
+                        <Text style={[styles.slotText, on && styles.slotTextOn]}>{s.hour}</Text>
+                        <Text style={[styles.slotSub, disabled && styles.slotSubSold]}>{t('slots_remaining', 'Remaining: {n}', { n: String(s.remaining) })}</Text>
+                      </Pressable>
+                    );
+                  })}
+                </View>
+              )}
+            </View>
+
+            {/* Mini Order Summary */}
+            {/* Center selection */}
+            <View style={{ marginTop: 10 }}>
+              <Text style={styles.sectionTitle}>{t('select_center','Select nearest center')}</Text>
+              <View style={{ marginTop: 8, gap: 10 }}>
+                <Select label={t('district','District')} value={centerDistrict || null} options={getDistricts('en' as any)} onChange={(v) => { setCenterDistrict(v as string); setCenterBlock(''); setCenterId(''); }} placeholder={t('select_district','Select district')} />
+                <Select label={t('block','Block')} value={centerBlock || null} options={getBlocks('en' as any, centerDistrict)} onChange={(v) => { setCenterBlock(v as string); setCenterId(''); }} placeholder={t('select_block','Select block')} />
+                <Select label={t('center','Center')} value={centerId || null} options={getPacsList('en' as any)} onChange={(v) => setCenterId(v as string)} placeholder={t('select_center','Select center')} />
+              </View>
+            </View>
+
+            {/* Mini Order Summary */}
+            <View style={{ marginTop: 10, paddingVertical: 8, borderTopWidth: 1, borderTopColor: '#eee' }}>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Text style={{ fontSize: 16, color: '#666' }}>{t('total', 'Total')}</Text>
+                <Text style={{ fontSize: 16, fontWeight: '800', color: Brand.saffron }}>{`₹${totalAmount}`}</Text>
+              </View>
+            </View>
+
+            {/* Actions */}
+            {token ? (
+              <View style={{ marginTop: 16 }}>
+                <Text style={{ fontSize: Typography.subtitle, fontWeight: '800', color: Brand.green, marginBottom: 6 }}>{t('booking_confirmed', 'Slot booking successful')}</Text>
+                <Text style={{ fontSize: 16, marginBottom: 12 }}>{`Token: ${token}`}</Text>
+                <Pressable style={[styles.checkoutBtn, { marginBottom: 0 }]} onPress={() => { setModalOpen(false); setToken(null); router.push('/procurement-status'); }}>
+                  <Text style={styles.checkoutText}>{t('ok', 'OK')}</Text>
+                </Pressable>
+                <View style={{ flexDirection: 'row', gap: 10 }}>
+                  <Pressable style={[styles.secondaryBtn, { flex: 1 }]} onPress={async () => {
+                    if (!createdOrderMeta) return;
+                    await saveAndShareReceipt({ id: createdOrderMeta.id, token: createdOrderMeta.token, order: { userId: await AsyncStorage.getItem('farmer_id'), kind: 'mixed', items: [], total: totalAmount, date: selectedDate || '', hour: selectedHour || '', centerId, centerName: centerId } as any });
+                  }}>
+                    <Text style={styles.secondaryText}>{t('download_receipt','Download Receipt')}</Text>
+                  </Pressable>
+                  <Pressable style={[styles.checkoutBtn, { flex: 1, marginBottom: 0 }]} onPress={() => { setModalOpen(false); setToken(null); setCreatedOrderMeta(null); router.push('/procurement-status'); }}>
+                    <Text style={styles.checkoutText}>{t('ok', 'OK')}</Text>
+                  </Pressable>
+                </View>
+              </View>
+            ) : (
+              <View style={{ flexDirection: 'row', gap: 10, marginTop: 16 }}>
+                <Pressable style={[styles.secondaryBtn]} onPress={() => setModalOpen(false)}>
+                  <Text style={styles.secondaryText}>{t('cancel', 'Cancel')}</Text>
+                </Pressable>
+                <Pressable
+                  disabled={!selectedDate || !selectedHour || !centerId || booking}
+                  style={[styles.primaryBtn, (!selectedDate || !selectedHour || !centerId || booking) && styles.primaryBtnDisabled]}
+                  onPress={makeOrder}
+                >
+                  {booking ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryBtnText}>{t('confirm', 'Confirm')}</Text>}
+                </Pressable>
+              </View>
+            )}
+
+          </View>
+        </View>
+      </Modal>
     </MainBackgroundImage>
   );
 }
@@ -327,4 +503,21 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '800',
   },
+  // Modal styles
+  modalWrap: { flex: 1, backgroundColor: 'rgba(0,0,0,0.3)', justifyContent: 'center', padding: 24 },
+  modalCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16 },
+  iconBtn: { width: 36, height: 36, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
+  slotsWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
+  slotBtn: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 10, paddingVertical: 8, paddingHorizontal: 10, minWidth: 96 },
+  slotBtnOn: { backgroundColor: Brand.saffron, borderColor: Brand.saffron },
+  slotBtnDisabled: { opacity: 0.45 },
+  slotText: { fontWeight: '700', color: '#111' },
+  slotTextOn: { color: '#fff' },
+  slotSub: { color: '#6b7280', fontSize: Typography.label - 2 },
+  slotSubSold: { color: '#b91c1c', fontWeight: '700' },
+  primaryBtn: { flex: 1, backgroundColor: Brand.saffron, borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  primaryBtnDisabled: { backgroundColor: Brand.saffronDisabledSolid },
+  primaryBtnText: { color: '#fff', fontWeight: '800' },
+  secondaryBtn: { flex: 1, borderWidth: 1, borderColor: Brand.saffron, borderRadius: 12, paddingVertical: 14, alignItems: 'center' },
+  secondaryText: { color: Brand.saffron, fontWeight: '800' },
 });

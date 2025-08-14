@@ -33,7 +33,8 @@ const styles = StyleSheet.create({
   pill: {
     paddingHorizontal: 10,
     paddingVertical: 6,
-    borderRadius: 999,
+  borderRadius: 999,
+  backgroundColor: '#ffffff',
   },
   pillActive: {
     backgroundColor: Brand.saffron,

@@ -29,11 +29,11 @@ export default function HomeScreen() {
       bg: '#EAF8F0',
     },
     {
-      title: t('fertilizer', 'Fertilizer'),
+      title: t('purchase', 'Purchase'),
       sub: t('fert_banner_sub', 'Check availability and place requests'),
       cta: t('open', 'Open'),
-      route: '/fertilizer',
-      bg: '#FFF7E6',
+      route: '/purchase',
+      bg: Brand.saffronSurface,
     },
     {
       title: t('govt_schemes', 'Govt Schemes'),
@@ -149,9 +149,9 @@ export default function HomeScreen() {
 
         <Text style={styles.section}>{t('available_services')}</Text>
         <View style={styles.grid}>
-          <Card title={t('fertilizer')} image={getIcon('fertilizer')} onPress={() => router.push('/fertilizer')} />
-          <Card title={t('pacs_services')} image={getIcon('pacs')} onPress={() => router.push('/pacs-services')} />
-          <Card title={t('procurement_status')} image={getIcon('procurement')} onPress={() => router.push('/procurement-status')} />
+          <Card title={t('purchase')} image={getIcon('fertilizer')} onPress={() => router.push('/purchase')} />
+          <Card title={t('loans', 'Loans')} image={getIcon('pacs')} onPress={() => router.push('/loans')} />
+          <Card title={t('sell')} image={getIcon('procurement')} onPress={() => router.push('/sell')} />
           <Card title={t('govt_schemes')} image={getIcon('schemes')} onPress={() => router.push('/govt-schemes')} />
           <Card title={t('pacs_directory')} image={getIcon('directory')} onPress={() => router.push('/pacs-directory')} />
           <Card title={t('certificates')} image={getIcon('certificates')} onPress={() => router.push('/certificates')} />
@@ -167,7 +167,7 @@ const styles = StyleSheet.create({
   container: { padding: Spacing.screenPadding, gap: 14 },
   topbar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 2, paddingBottom: 6 },
   headerIcons: { flexDirection: 'row', gap: 12 },
-  iconBtn: { width: 40, height: 40, borderRadius: 14, backgroundColor: '#FFF5EC', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#FFE4CC' },
+  iconBtn: { width: 40, height: 40, borderRadius: 14, backgroundColor: Brand.saffronSurface, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Brand.saffronBorder },
   headerIcon: { width: 22, height: 22 },
   greet: { fontSize: Typography.subtitle, color: '#1f2937' },
   name: { fontSize: Typography.title, fontWeight: '800' },

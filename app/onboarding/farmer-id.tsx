@@ -20,14 +20,15 @@ export default function FarmerIdScreen() {
   {/* App logo removed */}
   <Text style={styles.title}>{t('enter_farmer_id', 'Enter your 16-digit Farmer ID')}</Text>
 
-    <TextInput
+  <TextInput
         value={fid}
         onChangeText={setFid}
         placeholder="1234567890123456"
+    placeholderTextColor="#9CA3AF"
         keyboardType="number-pad"
         maxLength={16}
   style={styles.input}
-  onFocus={(e) => formRef.current?.scrollToTarget(e.nativeEvent.target, 8)}
+  onFocus={(e) => formRef.current?.scrollToTarget(e.nativeEvent.target)}
       />
       {!isValid && fid.length > 0 ? (
         <Text style={{ fontSize: 12, color: '#ef4444', textAlign: 'center' }}>{t('err_farmer_id')}</Text>
@@ -64,6 +65,6 @@ const styles = StyleSheet.create({
     minHeight: 56
   },
   cta: { backgroundColor: Brand.saffron, paddingVertical: 18, borderRadius: 12, marginTop: 16 },
-  ctaDisabled: { backgroundColor: '#ffcd9f' },
+  ctaDisabled: { backgroundColor: Brand.saffronDisabledSolid },
   ctaText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });

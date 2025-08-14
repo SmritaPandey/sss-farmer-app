@@ -5,12 +5,14 @@ import { Brand } from '@/constants/Colors';
 import { Typography, Spacing } from '@/constants/Theme';
 import { useI18n } from '@/contexts/i18n';
 import MainBackgroundImage from '@/components/MainBackgroundImage';
+import FormScreen, { FormScreenHandle } from '@/components/FormScreen';
 
 export default function AuthScreen() {
   const { t } = useI18n();
   const [isSignUp, setIsSignUp] = React.useState(true);
   const [phone, setPhone] = React.useState('');
   const [name, setName] = React.useState('');
+  const formRef = React.useRef<FormScreenHandle>(null);
   
   const isValidPhone = /^\d{10}$/.test(phone);
   const isValidName = name.trim().length >= 2;
@@ -30,7 +32,7 @@ export default function AuthScreen() {
 
   return (
     <MainBackgroundImage>
-      <View style={styles.container}>
+  <FormScreen ref={formRef} contentContainerStyle={styles.container}>
   {/* App logo removed */}
         <Text style={styles.title}>
           {isSignUp ? t('create_account', 'Create Account') : t('sign_in', 'Sign In')}
@@ -48,7 +50,9 @@ export default function AuthScreen() {
               value={name}
               onChangeText={setName}
               placeholder={t('enter_name', 'Enter your full name')}
+              placeholderTextColor="#9CA3AF"
               style={styles.input}
+      onFocus={(e) => formRef.current?.scrollToTarget(e.nativeEvent.target)}
             />
           </View>
         )}
@@ -59,9 +63,11 @@ export default function AuthScreen() {
             value={phone}
             onChangeText={setPhone}
             placeholder="9876543210"
+            placeholderTextColor="#9CA3AF"
             keyboardType="number-pad"
             maxLength={10}
             style={styles.input}
+    onFocus={(e) => formRef.current?.scrollToTarget(e.nativeEvent.target)}
           />
         </View>
 
@@ -87,7 +93,7 @@ export default function AuthScreen() {
             </Text>
           </Pressable>
         </View>
-      </View>
+  </FormScreen>
     </MainBackgroundImage>
   );
 }
@@ -132,21 +138,9 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     minHeight: 56
   },
-  cta: { 
-    backgroundColor: Brand.saffron, 
-    paddingVertical: 18, 
-    borderRadius: 12, 
-    marginTop: 16 
-  },
-  ctaDisabled: { 
-    backgroundColor: '#ffcd9f' 
-  },
-  ctaText: { 
-    color: 'white', 
-    textAlign: 'center', 
-    fontWeight: '800', 
-    fontSize: Typography.button 
-  },
+  cta: { backgroundColor: Brand.saffron, paddingVertical: 18, borderRadius: 12, marginTop: 16 },
+  ctaDisabled: { backgroundColor: Brand.saffronDisabledSolid },
+  ctaText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
   switchContainer: {
     flexDirection: 'row',
     justifyContent: 'center',

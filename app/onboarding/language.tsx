@@ -36,7 +36,9 @@ export default function LanguageScreen() {
         </View>
 
         <Pressable onPress={() => setConsent((c) => !c)} style={styles.checkboxRow}>
-          <View style={[styles.checkbox, consent && styles.checkboxActive]} />
+          <View style={[styles.checkbox, consent && styles.checkboxActive]}>
+            {consent ? <Text style={styles.tick}>✓</Text> : null}
+          </View>
           <Text style={styles.checkboxText}>{t('consent_text')}</Text>
         </Pressable>
 
@@ -62,15 +64,16 @@ const styles = StyleSheet.create({
   title: { fontSize: Typography.title, fontWeight: '800', textAlign: 'center' },
   subtitle: { fontSize: Typography.subtitle, color: '#637488', textAlign: 'center' },
   row: { flexDirection: 'row', gap: 12, justifyContent: 'center' },
-  pill: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 20, borderWidth: 1, borderColor: '#e5e7eb' },
-  pillActive: { backgroundColor: '#FFF4E8', borderColor: Brand.saffron },
+  pill: { paddingVertical: 10, paddingHorizontal: 16, borderRadius: 20, borderWidth: 1, borderColor: '#e5e7eb', backgroundColor: '#ffffff' },
+  pillActive: { backgroundColor: Brand.saffron, borderColor: Brand.saffron },
   pillText: { fontSize: Typography.label },
-  pillTextActive: { color: Brand.saffron, fontWeight: '700' },
+  pillTextActive: { color: '#ffffff', fontWeight: '700' },
   checkboxRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 12 },
-  checkbox: { width: 18, height: 18, borderRadius: 4, borderWidth: 1, borderColor: '#999' },
-  checkboxActive: { backgroundColor: Brand.saffron, borderColor: Brand.saffron },
+  checkbox: { width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: Brand.saffron, backgroundColor: '#ffffff' },
+  checkboxActive: { borderColor: Brand.saffron, backgroundColor: '#ffffff' },
+  tick: { color: Brand.saffron, fontWeight: '800', textAlign: 'center', lineHeight: 18 },
   checkboxText: { flex: 1, fontSize: 13 },
   cta: { backgroundColor: Brand.saffron, paddingVertical: 18, borderRadius: 12, marginTop: 16 },
-  ctaDisabled: { backgroundColor: '#ffcd9f' },
+  ctaDisabled: { backgroundColor: Brand.saffronDisabledSolid },
   ctaText: { color: 'white', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });

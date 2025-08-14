@@ -1,14 +1,50 @@
 import React from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, Image } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, Image, FlatList } from 'react-native';
 import WatermarkBackground from '@/components/WatermarkBackground';
-import { procurements } from '@/constants/models';
 import { useI18n } from '@/contexts/i18n';
-import { createPlaceholderIcon, getIcon } from '@/assets/icons';
+import { createPlaceholderIcon } from '@/assets/icons';
+import { db } from '@/src/config/firebase';
+import { collection, getDocs, orderBy, query, where } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+type OrderRow = { id: string; kind: string; date: string; hour: string; total: number; status?: string; token?: string };
 
 export default function ProcurementStatusScreen() {
   const { t } = useI18n();
-  const [loading] = React.useState(false);
-  const items = procurements;
+  const [loading, setLoading] = React.useState(true);
+  const [items, setItems] = React.useState<OrderRow[]>([]);
+  const [err, setErr] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    (async () => {
+      try {
+        setLoading(true);
+        const uid = await AsyncStorage.getItem('farmer_id');
+        const q = uid
+          ? query(collection(db, 'orders'), where('userId', '==', uid), orderBy('createdAt', 'desc'))
+          : query(collection(db, 'orders'), orderBy('createdAt', 'desc'));
+        const snap = await getDocs(q);
+        const list: OrderRow[] = [];
+        snap.forEach((d) => {
+          const v: any = d.data();
+          list.push({
+            id: d.id,
+            kind: v.kind || 'fert',
+            date: v.date || '',
+            hour: v.hour || '',
+            total: v.total || 0,
+            status: v.status || 'scheduled',
+            token: v.token,
+          });
+        });
+        setItems(list);
+      } catch (e: any) {
+        setErr(e?.message || 'error');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, []);
   
   const getCropIcon = (crop: string) => {
     const cropIcons: Record<string, string> = {
@@ -27,23 +63,25 @@ export default function ProcurementStatusScreen() {
         {loading ? <ActivityIndicator /> : items.length === 0 ? (
           <Text>{t('empty_list')}</Text>
         ) : (
-          items.map((rec) => (
-            <View key={rec.id} style={styles.itemCard}>
-              <View style={styles.itemHeader}>
-                <Image 
-                  source={createPlaceholderIcon(getCropIcon(rec.crop))} 
-                  style={styles.cropIcon} 
-                />
-                <View style={styles.itemDetails}>
-                  <Text style={styles.cropName}>{rec.crop} · {rec.qtyKg} kg @ ₹{rec.rate}</Text>
-                  <Text style={styles.itemDate}>{rec.date}</Text>
-                </View>
-                <View style={[styles.statusBadge, rec.status === 'paid' ? styles.statusPaid : styles.statusPending]}>
-                  <Text style={styles.statusText}>{rec.status === 'paid' ? 'Paid' : 'Pending'}</Text>
+          <FlatList
+            data={items}
+            keyExtractor={(it) => it.id}
+            renderItem={({ item: rec }) => (
+              <View style={styles.itemCard}>
+                <View style={styles.itemHeader}>
+                  <Image source={createPlaceholderIcon(rec.kind === 'seed' ? '🌱' : '🧪')} style={styles.cropIcon} />
+                  <View style={styles.itemDetails}>
+                    <Text style={styles.cropName}>{rec.kind.toUpperCase()} · {rec.date} {rec.hour}</Text>
+                    <Text style={styles.itemDate}>₹{rec.total}</Text>
+                    {rec.token ? <Text style={styles.token}>Token: {rec.token}</Text> : null}
+                  </View>
+                  <View style={[styles.statusBadge, rec.status === 'paid' ? styles.statusPaid : styles.statusPending]}>
+                    <Text style={styles.statusText}>{rec.status === 'paid' ? 'Paid' : 'Scheduled'}</Text>
+                  </View>
                 </View>
               </View>
-            </View>
-          ))
+            )}
+          />
         )}
       </View>
     </WatermarkBackground>
@@ -81,6 +119,12 @@ const styles = StyleSheet.create({
     color: '#6b7280', 
     fontSize: 14, 
     marginTop: 2 
+  },
+  token: {
+    color: '#2563eb',
+    fontSize: 13,
+    marginTop: 4,
+    fontWeight: '600'
   },
   statusBadge: { 
     paddingHorizontal: 8, 

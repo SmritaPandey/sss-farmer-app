@@ -4,7 +4,8 @@
  */
 
 // Brand: Orange/White with Indian flag accents (green)
-const saffron = '#F58220';
+// Updated to match logo orange exactly
+const saffron = '#FF9933';
 const indiaGreen = '#138808';
 const tintColorLight = saffron;
 const tintColorDark = '#ffffff';
@@ -32,6 +33,11 @@ export const Brand = {
   saffron,
   green: indiaGreen,
   white: '#ffffff',
+  // Derived variants to keep shade consistent everywhere
+  saffronSurface: 'rgba(255, 153, 51, 0.08)', // soft backgrounds
+  saffronDisabled: 'rgba(255, 153, 51, 0.45)', // disabled buttons (transparent)
+  saffronDisabledSolid: '#FFCD9F', // disabled buttons (no opacity)
+  saffronBorder: 'rgba(255, 153, 51, 0.25)', // subtle borders
 };
 
 // Agriculture-friendly supporting palette

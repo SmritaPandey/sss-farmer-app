@@ -70,6 +70,7 @@ export function Select<T=string>({ label, value, options, onChange, placeholder,
               value={query}
               onChangeText={setQuery}
               placeholder={t('search', 'Search...')}
+              placeholderTextColor="#9CA3AF"
               style={styles.search}
               autoFocus={Platform.OS !== 'web'}
               returnKeyType="search"

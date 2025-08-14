@@ -23,7 +23,7 @@ export default function LoanRequestScreen() {
   <Select label={`${t('crop')} / Crop`} required error={!form.crop ? t('err_required') : ''} value={form.crop || null} options={getLoanCrops(lang)} onChange={(v) => setField('crop', v as string)} placeholder={t('select', 'Select')} />
       </View>
 
-  <View style={styles.field}><Text style={styles.label}>{`${t('amount')} / Amount`}</Text><TextInput style={styles.input} value={form.amount} onChangeText={(t) => setField('amount', t)} onFocus={(e) => formRef.current?.scrollToTarget(e.nativeEvent.target)} /></View>
+  <View style={styles.field}><Text style={styles.label}>{`${t('amount')} / Amount`}</Text><TextInput style={styles.input} value={form.amount} onChangeText={(t) => setField('amount', t)} placeholderTextColor="#9CA3AF" onFocus={(e) => formRef.current?.scrollToTarget(e.nativeEvent.target)} /></View>
 
       <View style={styles.field}>
   <Select label={`${t('tenure')} / Tenure`} required error={!form.tenure ? t('err_required') : ''} value={form.tenure || null} options={getTenures(lang)} onChange={(v) => setField('tenure', v as string)} placeholder={t('select', 'Select')} />
@@ -37,7 +37,7 @@ export default function LoanRequestScreen() {
       </View>
       <View style={styles.field}><Text style={styles.label}>{`${t('mobile')} / Mobile`}</Text><Text style={styles.readonly}>{form.mobile}</Text></View>
 
-  <Pressable disabled={!canSubmit || submitting} style={[styles.primary, (!canSubmit || submitting) && { opacity: 0.6 }]} onPress={() => { if (!canSubmit) return; setSubmitting(true); setTimeout(() => setSubmitting(false), 500); }}>
+  <Pressable disabled={!canSubmit || submitting} style={[styles.primary, (!canSubmit || submitting) && styles.primaryDisabled]} onPress={() => { if (!canSubmit) return; setSubmitting(true); setTimeout(() => setSubmitting(false), 500); }}>
         <Text style={styles.primaryText}>{submitting ? '...' : `${t('request')} / ${t('submit_register', 'Submit')}`}</Text>
       </Pressable>
   <View style={{ height: 8 }} />
@@ -53,5 +53,6 @@ const styles = StyleSheet.create({
   input: { borderWidth: 1, borderColor: '#e5e7eb', borderRadius: 12, padding: 16, fontSize: Typography.input, backgroundColor: '#fff' },
   readonly: { padding: 16, backgroundColor: '#f3f4f6', borderRadius: 12, fontSize: Typography.input },
   primary: { backgroundColor: Brand.saffron, paddingVertical: 16, borderRadius: 12, marginTop: 16 },
+  primaryDisabled: { backgroundColor: Brand.saffronDisabledSolid },
   primaryText: { color: '#fff', textAlign: 'center', fontWeight: '800', fontSize: Typography.button },
 });

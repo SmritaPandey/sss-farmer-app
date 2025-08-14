@@ -3,7 +3,7 @@ import { View, Image, StyleSheet, Text, Platform } from 'react-native';
 import { Brand } from '@/constants/Colors';
 import { getYogiImage, getJPSRathoreImage, getSahkarSarthiImage } from '@/assets/icons';
 import { useI18n } from '@/contexts/i18n';
-import UPSarkar from '../assets/icons/Uttar-Pradesh-Sarkar-White.svg';
+import UPSarkar from '../assets/icons/uttar-pradesh-sarkar-white.svg';
 
 export default function OnboardingHeader() {
   const { lang } = useI18n() as any;
@@ -19,7 +19,7 @@ export default function OnboardingHeader() {
       <View style={styles.midRow}>
         <Image source={getSahkarSarthiImage()} style={styles.sahkar} resizeMode="contain" />
       </View>
-      <Text style={styles.subtitle}>{lang === 'hi' ? 'किसान ऐप' : 'Kisan App'}</Text>
+  <Text style={styles.subtitle}>{lang === 'hi' ? 'S3 किसान ऐप' : 'S3 Kisan App'}</Text>
     </View>
   );
 }
@@ -42,11 +42,10 @@ const styles = StyleSheet.create({
     width: 95,
     height: 95,
     borderRadius: 0,
-    backgroundColor: '#ffffff22',
   },
   centerLogoWrap: {
-    alignItems: 'center',
-    justifyContent: 'center',
+  alignItems: 'center',
+  justifyContent: 'center',
   },
   midRow: {
     alignItems: 'center',

@@ -13,7 +13,6 @@
     },
     "android": {
       "package": "com.smrita.farmerapp",
-      "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -45,9 +44,6 @@
       "eas": {
         "projectId": "d9c2f250-a239-4bf8-956d-c740b7634e01"
       }
-    },
-    "runtimeVersion": {
-      "policy": "appVersion"
     },
     "updates": {
       "url": "https://u.expo.dev/d9c2f250-a239-4bf8-956d-c740b7634e01"

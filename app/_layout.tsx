@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { TextInput } from 'react-native';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { I18nProvider } from '@/contexts/i18n';
@@ -19,6 +20,10 @@ export default function RootLayout() {
     // Async font loading only occurs in development.
     return null;
   }
+
+  // Ensure a consistent grey placeholder across the app (safety net)
+  if ((TextInput as any).defaultProps == null) (TextInput as any).defaultProps = {};
+  (TextInput as any).defaultProps.placeholderTextColor = '#9CA3AF';
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

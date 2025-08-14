@@ -17,6 +17,7 @@ const db = {
   requests: [],
   schemes: [{ id: 'pm-kisan', title: 'PM Kisan Samman Nidhi' }],
   procurements: [],
+  slots: new Map(), // key: yyyy-mm-dd => { '09:00': numberBooked, ... }
 };
 
 // In-memory OTP store
@@ -108,6 +109,45 @@ app.post('/fertilizer-requests', (req, res) => {
 app.get('/schemes/eligible', (req, res) => {
   // Demo: return all
   res.json(db.schemes);
+});
+
+// Slot availability: 1-hour slots 09:00-17:00, capacity 20 each
+const SLOT_HOURS = ['09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00'];
+const SLOT_CAP = 20;
+
+function normDate(d) {
+  // expect yyyy-mm-dd
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(d || '')) return null;
+  return d;
+}
+
+function getDayRecord(date) {
+  if (!db.slots.has(date)) {
+    const rec = {};
+    for (const h of SLOT_HOURS) rec[h] = 0;
+    db.slots.set(date, rec);
+  }
+  return db.slots.get(date);
+}
+
+app.get('/slots', (req, res) => {
+  const { date } = req.query;
+  const d = normDate(String(date || ''));
+  if (!d) return res.status(400).json({ error: 'invalid_date' });
+  const rec = getDayRecord(d);
+  const availability = SLOT_HOURS.map(h => ({ hour: h, remaining: Math.max(0, SLOT_CAP - (rec[h] || 0)) }));
+  res.json({ date: d, availability });
+});
+
+app.post('/slots/book', (req, res) => {
+  const { date, hour, qty = 1 } = req.body || {};
+  const d = normDate(String(date || ''));
+  if (!d || !SLOT_HOURS.includes(hour)) return res.status(400).json({ error: 'invalid_input' });
+  const rec = getDayRecord(d);
+  const booked = rec[hour] || 0;
+  if (booked + qty > SLOT_CAP) return res.status(409).json({ error: 'sold_out', remaining: Math.max(0, SLOT_CAP - booked) });
+  rec[hour] = booked + qty;
+  res.json({ ok: true, date: d, hour, remaining: SLOT_CAP - rec[hour] });
 });
 
 // Districts/Blocks/Tehsils endpoints (read from assets)
