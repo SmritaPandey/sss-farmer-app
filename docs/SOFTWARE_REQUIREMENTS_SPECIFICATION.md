@@ -699,6 +699,12 @@ The system shall provide essential functionality when internet connectivity is l
 - Users shall be able to withdraw consent at any time
 - Consent status shall be clearly displayed to users
 
+**REQ-PRIVACY-003: Aadhaar Masking**
+- Aadhaar numbers shall be masked everywhere in the UI except where explicitly required for input or verification
+- Only the last 4 digits of Aadhaar shall be visible; preceding digits shall be obfuscated
+- Screenshots/exports (e.g., ID card previews) shall not display full Aadhaar numbers
+- Logs and analytics shall never contain full Aadhaar values
+
 ### 5.4 Software Quality Attributes
 
 #### 5.4.1 Reliability

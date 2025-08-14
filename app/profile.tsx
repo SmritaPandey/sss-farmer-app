@@ -8,6 +8,7 @@ import FarmerCard from '@/components/FarmerCard';
 import FarmerCardBack from '@/components/FarmerCardBack';
 import { useI18n } from '@/contexts/i18n';
 import { getPacsList } from '@/constants/mockData';
+import { maskAadhaar } from '@/src/utils/format';
 
 export default function ProfileScreen() {
 	const { t, lang } = useI18n() as any;
@@ -73,7 +74,7 @@ export default function ProfileScreen() {
 					  <View style={styles.fieldBox}><Text style={styles.fieldLabel}>{t('name')}</Text><Text style={styles.fieldValue}>{profile?.name || ''}</Text></View>
 					  <View style={styles.fieldBox}><Text style={styles.fieldLabel}>{t('pacs_name')}</Text><Text style={styles.fieldValue}>{pacsLabel}</Text></View>
 					  <View style={styles.fieldBox}><Text style={styles.fieldLabel}>{t('mobile')}</Text><Text style={styles.fieldValue}>{profile?.mobile ? `+91 ${profile.mobile}` : ''}</Text></View>
-					  <View style={styles.fieldBox}><Text style={styles.fieldLabel}>{t('aadhaar')}</Text><Text style={styles.fieldValue}>{profile?.aadhaar || ''}</Text></View>
+					  <View style={styles.fieldBox}><Text style={styles.fieldLabel}>{t('aadhaar')}</Text><Text style={styles.fieldValue}>{maskAadhaar(profile?.aadhaar)}</Text></View>
 					  <View style={styles.fieldBox}><Text style={styles.fieldLabel}>{t('email')}</Text><Text style={styles.fieldValue}>{profile?.email || ''}</Text></View>
 					  {profile?.tehsil ? (<View style={styles.fieldBox}><Text style={styles.fieldLabel}>{t('tehsil')}</Text><Text style={styles.fieldValue}>{profile.tehsil}</Text></View>) : null}
 
