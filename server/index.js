@@ -7,6 +7,7 @@ import path from 'path';
 const app = express();
 app.use(cors());
 app.use(express.json());
+app.use('/admin', express.static(path.join(process.cwd(), 'admin')));
 
 const nanoid = customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 8);
 
@@ -18,6 +19,7 @@ const db = {
   schemes: [{ id: 'pm-kisan', title: 'PM Kisan Samman Nidhi' }],
   procurements: [],
   slots: new Map(), // key: yyyy-mm-dd => { '09:00': numberBooked, ... }
+  products: [],
 };
 
 // In-memory OTP store
@@ -35,6 +37,28 @@ function tryLoadPacs() {
 }
 tryLoadPacs();
 
+// Ensure data directory exists
+const dataDir = path.join(process.cwd(), 'data');
+if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+
+// Load/Save Products JSON
+const productsPath = path.join(dataDir, 'products.json');
+function loadProducts() {
+  if (fs.existsSync(productsPath)) {
+    try {
+      db.products = JSON.parse(fs.readFileSync(productsPath, 'utf-8')) || [];
+    } catch {
+      db.products = [];
+    }
+  } else {
+    db.products = [];
+  }
+}
+function saveProducts() {
+  try { fs.writeFileSync(productsPath, JSON.stringify(db.products, null, 2)); } catch {}
+}
+loadProducts();
+
 app.get('/pacs', (req, res) => {
   const { district, block, q } = req.query;
   let list = db.pacs;
@@ -42,6 +66,60 @@ app.get('/pacs', (req, res) => {
   if (block) list = list.filter(p => (p.block || '').toLowerCase() === String(block).toLowerCase());
   if (q) list = list.filter(p => p.name.toLowerCase().includes(String(q).toLowerCase()));
   res.json(list);
+});
+
+// Products API (basic admin + app consumption)
+// Product model: { id, sku?, name, category: 'fert'|'seed'|'other', price, unit?, stock?, imageUrl?, pacsId?, isActive }
+app.get('/products', (req, res) => {
+  const { category, q, active, limit, offset } = req.query;
+  let list = db.products.slice();
+  if (category) list = list.filter(p => String(p.category) === String(category));
+  if (typeof active !== 'undefined') {
+    const want = String(active) === '1' || String(active).toLowerCase() === 'true';
+    list = list.filter(p => !!p.isActive === want);
+  }
+  if (q) {
+    const needle = String(q).toLowerCase();
+    list = list.filter(p => (p.name || '').toLowerCase().includes(needle) || (p.sku || '').toLowerCase().includes(needle));
+  }
+  const o = parseInt(String(offset || '0'), 10) || 0;
+  const l = parseInt(String(limit || '0'), 10) || 0;
+  if (o || l) list = list.slice(o, l ? o + l : undefined);
+  res.json(list);
+});
+
+app.get('/products/:id', (req, res) => {
+  const item = db.products.find(p => p.id === req.params.id);
+  if (!item) return res.status(404).json({ error: 'not_found' });
+  res.json(item);
+});
+
+app.post('/products', (req, res) => {
+  const { sku, name, category = 'other', price = 0, unit = 'unit', stock = 0, imageUrl = '', pacsId = null, isActive = true } = req.body || {};
+  if (!name) return res.status(400).json({ error: 'name required' });
+  const id = 'PRD' + nanoid();
+  const rec = { id, sku: sku || null, name, category, price: Number(price) || 0, unit, stock: Number(stock) || 0, imageUrl, pacsId, isActive: !!isActive, createdAt: Date.now(), updatedAt: Date.now() };
+  db.products.push(rec);
+  saveProducts();
+  res.status(201).json(rec);
+});
+
+app.put('/products/:id', (req, res) => {
+  const idx = db.products.findIndex(p => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ error: 'not_found' });
+  const cur = db.products[idx];
+  const upd = { ...cur, ...req.body, price: req.body?.price !== undefined ? Number(req.body.price) : cur.price, stock: req.body?.stock !== undefined ? Number(req.body.stock) : cur.stock, updatedAt: Date.now() };
+  db.products[idx] = upd;
+  saveProducts();
+  res.json(upd);
+});
+
+app.delete('/products/:id', (req, res) => {
+  const before = db.products.length;
+  db.products = db.products.filter(p => p.id !== req.params.id);
+  if (db.products.length === before) return res.status(404).json({ error: 'not_found' });
+  saveProducts();
+  res.json({ ok: true });
 });
 
 app.post('/auth/send-otp', (req, res) => {

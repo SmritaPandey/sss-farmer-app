@@ -11,6 +11,8 @@ import { router } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 // Booking happens from Cart now
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchProducts, Product } from '@/src/services/products';
+import { BASE_URL } from '@/src/config/api';
 
 type Prod = { key: string; labelKey: string; price: number; img?: any };
 
@@ -38,13 +40,32 @@ export default function PurchaseScreen() {
   const [quantities, setQuantities] = React.useState<Record<string, number>>({});
   const [userId, setUserId] = React.useState<string | null>(null);
   const [checkingOut, setCheckingOut] = React.useState(false);
-  const list = kind === 'fert' ? FERTS : SEEDS;
+  const [remoteFerts, setRemoteFerts] = React.useState<Prod[] | null>(null);
+  const [remoteSeeds, setRemoteSeeds] = React.useState<Prod[] | null>(null);
+  const list = React.useMemo(() => {
+    if (kind === 'fert') return (remoteFerts ?? FERTS);
+    return (remoteSeeds ?? SEEDS);
+  }, [kind, remoteFerts, remoteSeeds]);
 
   React.useEffect(() => {
     (async () => {
       try {
         const id = await AsyncStorage.getItem('farmer_id');
         if (id) setUserId(id);
+      } catch {}
+    })();
+  }, []);
+
+  // Load products from backend if API base is configured
+  React.useEffect(() => {
+    (async () => {
+      try {
+        if (!BASE_URL) return;
+        const ferts = await fetchProducts({ category: 'fert', active: true });
+        const seeds = await fetchProducts({ category: 'seed', active: true });
+        const toProd = (p: Product): Prod => ({ key: p.id, labelKey: p.name, price: p.price, img: getIcon('fertilizer') });
+        if (Array.isArray(ferts) && ferts.length) setRemoteFerts(ferts.map(toProd));
+        if (Array.isArray(seeds) && seeds.length) setRemoteSeeds(seeds.map(toProd));
       } catch {}
     })();
   }, []);
@@ -100,7 +121,7 @@ export default function PurchaseScreen() {
             <View key={p.key} style={styles.cartItem}>
               <Image source={p.img || getIcon('fertilizer')} style={styles.itemImage} />
               <View style={styles.itemDetails}>
-                <Text style={styles.itemName}>{t(p.labelKey as any)}</Text>
+                <Text style={styles.itemName}>{remoteFerts || remoteSeeds ? p.labelKey : t(p.labelKey as any)}</Text>
                 <Text style={styles.itemPrice}>₹{p.price}</Text>
               </View>
               <View style={styles.quantityControls}>
